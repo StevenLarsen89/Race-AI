@@ -14,10 +14,13 @@ Game will stop if car crashes
 import pygame
 import time
 import random
-from PIL import Image
 
 # initiate pygame
 pygame.init()
+
+# pygame module for loading and playing sounds
+pygame.mixer.init()
+
 
 # define colors
 
@@ -29,26 +32,54 @@ block_color = (53, 115, 255)
 car_width = 57
 car_height = 115
 
-## game options ##
+## GAME OPTIONS ##
 
 # game resolution
 display_width = 800
 display_height = 600
-
 # set size of game display
 gameDisplay = pygame.display.set_mode((display_width, display_height))
-
 # title of game window
 pygame.display.set_caption('Super Car Cat')
-
 # define game clock
 clock = pygame.time.Clock()
 
-### GAME ###
-
-## CAR ##
+# CAR
 carImg = pygame.image.load('car1.png')
 carImg = pygame.transform.scale(carImg, (car_width, car_height))
+carSpeed = 5
+# SPRITES
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = carImg
+        self.rect = self.image.get_rect()
+        self.rect.centerx = display_width / 2
+        self.rect.bottom = display_height * 0.8
+        self.speedx = 0
+        self.speedy = 0
+
+    def update(self):
+        self.speedx = 0
+        self.speedy = 0
+
+        keystate = pygame.key.get_pressed()
+        if keystate[pygame.K_LEFT]:
+            self.speedx = -carSpeed
+        if keystate[pygame.K_RIGHT]:
+            self.speedx = carSpeed
+        self.rect.x += self.speedx
+
+        if keystate[pygame.K_UP]:
+            self.speedy = -carSpeed
+        if keystate[pygame.K_DOWN]:
+            self.speedy = carSpeed
+        self.rect.y += self.speedy
+
+all_sprites = pygame.sprite.Group()
+player = Player()
+all_sprites.add(player)
 
 ## functions ##
 
@@ -63,18 +94,6 @@ def time_passed(count):
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 25))
 
-
-# =============================================================================
-# def xspeed(count):
-#     font = pygame.font.SysFont(None, 25)
-#     text = font.render("X-speed: " + str(count), True, black)
-#     gameDisplay.blit(text, (0,50))
-#     
-# def yspeed(count):
-#     font = pygame.font.SysFont(None, 25)
-#     text = font.render("Y-speed: " + str(count), True, black)
-#     gameDisplay.blit(text, (0,75))
-# =============================================================================
 
 # things to avoid in the game
 def things(thingx, thingy, thingw, thingh, color):
@@ -108,12 +127,12 @@ def crash():
 # main game loop
 def game_loop():
     # starting position
-    x = (display_width * 0.45)
-    y = (display_height * 0.8)
+    # x = (display_width * 0.45)
+    # y = (display_height * 0.8)
 
     # change in position
-    x_change = 0
-    y_change = 0
+    # x_change = 0
+    # y_change = 0
 
     # object start positoins
     thing_startx = random.randrange(0, display_width)
@@ -145,39 +164,39 @@ def game_loop():
                 quit()
 
             # car controls
-            if event.type == pygame.KEYDOWN:
-                keys = pygame.key.get_pressed()
-
-                if keys[pygame.K_LEFT]:
-                    x_change = - 5
-
-                if keys[pygame.K_RIGHT]:
-                    x_change = 5
-
-                if keys[pygame.K_UP]:
-                    y_change = -5
-
-                if keys[pygame.K_DOWN]:
-                    y_change = 5
-
-            """key=pygame.key.get_pressed()  #checking pressed keys
-            if key[pygame.K_a]:x_change = -5
-            if key[pygame.K_d]:x_change = 5
-            if key[pygame.K_w]:y_change = -5
-            if key[pygame.K_s]:y_change = 5"""
-
-            # stop moving when keys are no longer pressed (needs more work)
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    x_change = 0
-
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    y_change = 0
+            # if event.type == pygame.KEYDOWN:
+            #     keys = pygame.key.get_pressed()
+            #
+            #     if keys[pygame.K_LEFT]:
+            #         x_change = - 5
+            #
+            #     if keys[pygame.K_RIGHT]:
+            #         x_change = 5
+            #
+            #     if keys[pygame.K_UP]:
+            #         y_change = -5
+            #
+            #     if keys[pygame.K_DOWN]:
+            #         y_change = 5
+            #
+            # """key=pygame.key.get_pressed()  #checking pressed keys
+            # if key[pygame.K_a]:x_change = -5
+            # if key[pygame.K_d]:x_change = 5
+            # if key[pygame.K_w]:y_change = -5
+            # if key[pygame.K_s]:y_change = 5"""
+            #
+            # # stop moving when keys are no longer pressed (needs more work)
+            # if event.type == pygame.KEYUP:
+            #     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+            #         x_change = 0
+            #
+            # if event.type == pygame.KEYUP:
+            #     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+            #         y_change = 0
 
         # update car position         
-        x += x_change
-        y += y_change
+        #x += x_change
+        #y += y_change
 
         # background color of game
         gameDisplay.fill(white)
@@ -188,7 +207,7 @@ def game_loop():
         thing_starty += thing_speed
 
         # display car
-        car(x, y)
+        #car(x, y)
 
         # score
         things_dodged(dodged)
@@ -197,8 +216,8 @@ def game_loop():
 
 
         # game boundary
-        if x > display_width - car_width or x < 0:
-            crash()
+        # if x > display_width - car_width or x < 0:
+        #     crash()
 
         # when object exits screen, a new one spawns
         if thing_starty > display_height:
@@ -209,25 +228,27 @@ def game_loop():
             dodged += 1
 
         # collision detection
-        if x < thing_startx + thing_width and \
-                x + car_width > thing_startx and \
-                y < thing_starty + thing_height and \
-                y + car_height > thing_starty:
-            crash()
+        # if x < thing_startx + thing_width and \
+        #         x + car_width > thing_startx and \
+        #         y < thing_starty + thing_height and \
+        #         y + car_height > thing_starty:
+        #     crash()
 
         # draw lines from car to objects
         # vertical distance lines
-        pygame.draw.line(gameDisplay, black, (x, y), (x, thing_starty + thing_height), 1)
-        pygame.draw.line(gameDisplay, black, (x + car_width, y), (x + car_width, thing_starty + thing_height), 1)
+        #pygame.draw.line(gameDisplay, black, (x, y), (x, thing_starty + thing_height), 1)
+        #pygame.draw.line(gameDisplay, black, (x + car_width, y), (x + car_width, thing_starty + thing_height), 1)
         # horizontal distance lines
-        if x > thing_startx + thing_width:
-            pygame.draw.line(gameDisplay, black, (x, y), (thing_startx + thing_width, y), 1, )
+        #if x > thing_startx + thing_width:
+        #    pygame.draw.line(gameDisplay, black, (x, y), (thing_startx + thing_width, y), 1, )
 
-        if x + car_width < thing_startx:
-            pygame.draw.line(gameDisplay, black, (x + car_width, y), (thing_startx, y), 1, )
+        #if x + car_width < thing_startx:
+        #    pygame.draw.line(gameDisplay, black, (x + car_width, y), (thing_startx, y), 1, )
+        all_sprites.update()
 
         timePassed = round((time.time() - startTime), 4)
 
+        all_sprites.draw(gameDisplay)
         # update display after events  
         pygame.display.update()
 
