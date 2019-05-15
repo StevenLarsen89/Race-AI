@@ -104,9 +104,6 @@ def message_display(text):
 def crash():
     message_display('GAME OVER!')
 
-#
-
-
 # main game loop
 def game_loop():
     
