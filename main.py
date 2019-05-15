@@ -81,8 +81,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
 
-#class Object(pygame.sprite.Sprite):
+# TODO: class Object(pygame.sprite.Sprite):
 
+# TODO: add collisions
 
 all_sprites = pygame.sprite.Group()
 player = Player()
