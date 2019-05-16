@@ -271,8 +271,12 @@ def game_loop():
 
         # distance
         list_blocks = blocks.sprites()
-        y_dist = player.rect.top - list_blocks[1].rect.bottom
-        x_dist = player.rect.center[0] - list_blocks[1].rect.center[0]
+        # y_dist = player.rect.top - list_blocks[1].rect.bottom
+        # x_dist = player.rect.center[0] - list_blocks[1].rect.center[0]
+
+        y_dist = list_blocks[1].rect.center[1]
+        x_dist = list_blocks[1].rect.center[0]
+
         distance(y_dist, 25)
         distance(x_dist, 50)
         # update display after events
