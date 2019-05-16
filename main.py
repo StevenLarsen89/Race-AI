@@ -27,8 +27,10 @@ pygame.mixer.init()
 # define colors
 black = (0, 0, 0)
 white = (255, 255, 255)
-red = (255, 0, 0)
-block_color = (53, 115, 255)
+green = (112, 209, 48)
+gray = (109, 109, 109)
+beige = (237, 207, 132)
+
 
 car_width = 100
 car_height = 100
@@ -89,16 +91,34 @@ class Object(pygame.sprite.Sprite):
         self.image = pygame.transform.flip(self.image, False, True)
         self.image = pygame.transform.scale(self.image, (car_width, car_height))
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(0, display_width-self.rect.width)
+        self.rect.x = random.randrange(display_width*0.25-self.rect.width/2, display_width*0.75-self.rect.width/2)
         self.rect.y = random.randrange(-1200, -100)
         self.speedy = 6
 
     def update(self):
         self.rect.y += self.speedy
         if self.rect.top > display_height + 45:
-            self.rect.x = random.randrange(0, display_width - self.rect.width)
+            self.rect.x = random.randrange(display_width*0.25-self.rect.width/2, display_width*0.75-self.rect.width/2)
             self.rect.y = random.randrange(-1200, -100)
             self.speedy = 6
+
+class Road(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((display_width*0.6, display_height))
+        self.image.fill(gray)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = display_width / 2
+        self.rect.bottom = display_height
+
+class Roadside(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((display_width*0.7, display_height))
+        self.image.fill(beige)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = display_width / 2
+        self.rect.bottom = display_height
 
 # Definitions
 def time_passed(count):
@@ -118,18 +138,12 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
-def message_display(text):
-    largeText = pygame.font.Font('freesansbold.ttf', 115)
-    TextSurf, TextRect = text_objects(text, largeText)
-    TextRect.center = ((display_width / 2), (display_height / 2))
-    gameDisplay.blit(TextSurf, TextRect)
-    pygame.display.update()
-
-def crash():
-    message_display('GAME OVER!')
-    #time.sleep(2)
-    gameExit = True
-    game_loop()
+# def message_display(text):
+#     largeText = pygame.font.Font('freesansbold.ttf', 115)
+#     TextSurf, TextRect = text_objects(text, largeText)
+#     TextRect.center = ((display_width / 2), (display_height / 2))
+#     gameDisplay.blit(TextSurf, TextRect)
+#     pygame.display.update()
 
 def show_go_screen():
     gameDisplay.fill(white)
@@ -164,14 +178,18 @@ def game_loop():
             all_sprites = pygame.sprite.Group()
             blocks = pygame.sprite.LayeredUpdates()
             player = Player()
+            road = Road()
+            roadside = Roadside()
             #object = Object()
+            all_sprites.add(roadside)
+            all_sprites.add(road)
             all_sprites.add(player)
             for i in range(1, 6):
                 m = Object(nr=random.randrange(1, 5))
                 all_sprites.add(m)
                 blocks.add(m)
 
-        # pygame.sprite.collide_mask
+        # TODO: hvis objects kollidere så slet den ene
 
         ## EVENTS ##
         # gets all events happening in the game cursor movements, key clicks etc. 
@@ -199,11 +217,14 @@ def game_loop():
 
         ## RENDER ###
         # background color of game
-        gameDisplay.fill(white)
-        # score
-        time_passed(timePassed)
+        gameDisplay.fill(green)
+
+        #pygame.draw.rect(gameDisplay, white, [display_width/2, display_height/2, 50, 50])
+
         # all sprites
         all_sprites.draw(gameDisplay)
+        # score
+        time_passed(timePassed)
         # update display after events  
         pygame.display.flip()
 
