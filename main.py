@@ -14,6 +14,9 @@ Game will stop if car crashes
 import pygame
 import time
 import random
+from os import path
+
+img_dir = path.join(path.dirname(__file__), 'img')
 
 # initiate pygame
 pygame.init()
@@ -21,16 +24,15 @@ pygame.init()
 # pygame module for loading and playing sounds
 pygame.mixer.init()
 
-
 # define colors
-
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
 block_color = (53, 115, 255)
 
-car_width = 57
-car_height = 115
+car_width = 100
+car_height = 100
+carSpeed = 5
 
 ## GAME OPTIONS ##
 
@@ -46,17 +48,14 @@ clock = pygame.time.Clock()
 
 # ASSETS
 
-# Load img
-playerImg = pygame.image.load('car1.png')
-playerImg = pygame.transform.scale(playerImg, (car_width, car_height))
-carSpeed = 5
+# Load graphics
+playerImg = pygame.image.load(path.join(img_dir, 'car.png')).convert_alpha()
 
-
-
+# Sprites
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = playerImg
+        self.image = pygame.transform.scale(playerImg, (car_width, car_height))
         self.rect = self.image.get_rect()
         self.rect.centerx = display_width / 2
         self.rect.bottom = display_height * 0.8
@@ -83,12 +82,12 @@ class Player(pygame.sprite.Sprite):
             self.speedy = carSpeed
         self.rect.y += self.speedy
 
-
 class Object(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, nr):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((100, 100))
-        self.image.fill(block_color)
+        self.image = pygame.image.load(path.join(img_dir, 'Car_{0}.png'.format(nr))).convert_alpha()
+        self.image = pygame.transform.flip(self.image, False, True)
+        self.image = pygame.transform.scale(self.image, (car_width, car_height))
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, display_width-self.rect.width)
         self.rect.y = random.randrange(-1200, -100)
@@ -101,36 +100,23 @@ class Object(pygame.sprite.Sprite):
             self.rect.y = random.randrange(-1200, -100)
             self.speedy = 6
 
-
-# TODO: add collisions
-
-all_sprites = pygame.sprite.Group()
-blocks = pygame.sprite.Group()
-player = Player()
-all_sprites.add(player)
-for i in range(6):
-    m = Object()
-    all_sprites.add(m)
-    blocks.add(m)
-
-## functions ##
-
-# def things_dodged(count):
-#     font = pygame.font.SysFont(None, 25)
-#     text = font.render("Score: " + str(count), True, black)
-#     gameDisplay.blit(text, (0, 0))
-
-
+# Definitions
 def time_passed(count):
     font = pygame.font.SysFont(None, 25)
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 25))
 
-
 def text_objects(text, font):
     textSurface = font.render(text, True, black)
     return textSurface, textSurface.get_rect()
 
+font_name = pygame.font.match_font('arial')
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, black)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
 
 def message_display(text):
     largeText = pygame.font.Font('freesansbold.ttf', 115)
@@ -138,31 +124,54 @@ def message_display(text):
     TextRect.center = ((display_width / 2), (display_height / 2))
     gameDisplay.blit(TextSurf, TextRect)
     pygame.display.update()
-    time.sleep(2)
+
+def crash():
+    message_display('GAME OVER!')
+    #time.sleep(2)
+    gameExit = True
     game_loop()
 
-# def crash():
-#     message_display('GAME OVER!')
+def show_go_screen():
+    gameDisplay.fill(white)
+    draw_text(gameDisplay, 'Super Car Cat', 64, display_width/2, display_height/4)
+    draw_text(gameDisplay, 'Arrow keys to move', 32, display_width/2, display_height/2)
+    draw_text(gameDisplay, 'Press any key to start', 24, display_width/2, display_height*3/4)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYUP:
+                waiting = False
 
-
-# main game loop
 def game_loop():
-
-
-
-    # dodged = 0
-
     startTime = time.time()
 
-    timePassed = 0
-
-    ## game stop parameter
+    # game stop parameter
     gameExit = False
+    gameOver = True
 
     # game will run so long as crashed is equal to false
     while not gameExit:
         # define clock / frames per second
         clock.tick(60)
+        if gameOver:
+            show_go_screen()
+            gameOver = False
+            timePassed = 0
+            all_sprites = pygame.sprite.Group()
+            blocks = pygame.sprite.LayeredUpdates()
+            player = Player()
+            #object = Object()
+            all_sprites.add(player)
+            for i in range(1, 6):
+                m = Object(nr=random.randrange(1, 5))
+                all_sprites.add(m)
+                blocks.add(m)
+
+        # pygame.sprite.collide_mask
 
         ## EVENTS ##
         # gets all events happening in the game cursor movements, key clicks etc. 
@@ -175,19 +184,15 @@ def game_loop():
 
         ## UPDATE GAME STATE ##
 
-
-        # draw lines from car to objects
-        # vertical distance lines
-        #pygame.draw.line(gameDisplay, black, (x, y), (x, thing_starty + thing_height), 1)
-        #pygame.draw.line(gameDisplay, black, (x + car_width, y), (x + car_width, thing_starty + thing_height), 1)
-        # horizontal distance lines
-        #if x > thing_startx + thing_width:
-        #    pygame.draw.line(gameDisplay, black, (x, y), (thing_startx + thing_width, y), 1, )
-
-        #if x + car_width < thing_startx:
-        #    pygame.draw.line(gameDisplay, black, (x + car_width, y), (thing_startx, y), 1, )
-
+        # update all_sprites group
         all_sprites.update()
+
+        # collision detection
+        hits = pygame.sprite.spritecollide(player, blocks, False)
+
+        #hits = pygame.sprite.collide_mask(player, object)
+        if hits:
+            gameOver = True
 
         timePassed = round((time.time() - startTime), 4)
 
@@ -195,21 +200,12 @@ def game_loop():
         ## RENDER ###
         # background color of game
         gameDisplay.fill(white)
-
-        # things_dodged(dodged)
-
+        # score
         time_passed(timePassed)
-
-        # display things
-        # things(thing_startx, thing_starty, thing_width, thing_height, block_color)
-        # update position of things/object
-        # thing_starty += thing_speed
-
+        # all sprites
         all_sprites.draw(gameDisplay)
         # update display after events  
-        pygame.display.update()
-
-
+        pygame.display.flip()
 
 
 # run game loop
