@@ -44,11 +44,14 @@ pygame.display.set_caption('Super Car Cat')
 # define game clock
 clock = pygame.time.Clock()
 
-# CAR
+# ASSETS
+
+# Load img
 playerImg = pygame.image.load('car1.png')
 playerImg = pygame.transform.scale(playerImg, (car_width, car_height))
 carSpeed = 5
-# SPRITES
+
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -81,31 +84,47 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
 
-# TODO: class Object(pygame.sprite.Sprite):
+class Object(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((100, 100))
+        self.image.fill(block_color)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(0, display_width-self.rect.width)
+        self.rect.y = random.randrange(-1200, -100)
+        self.speedy = 6
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.top > display_height + 45:
+            self.rect.x = random.randrange(0, display_width - self.rect.width)
+            self.rect.y = random.randrange(-1200, -100)
+            self.speedy = 6
+
 
 # TODO: add collisions
 
 all_sprites = pygame.sprite.Group()
+blocks = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
+for i in range(6):
+    m = Object()
+    all_sprites.add(m)
+    blocks.add(m)
 
 ## functions ##
 
-def things_dodged(count):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render("Score: " + str(count), True, black)
-    gameDisplay.blit(text, (0, 0))
+# def things_dodged(count):
+#     font = pygame.font.SysFont(None, 25)
+#     text = font.render("Score: " + str(count), True, black)
+#     gameDisplay.blit(text, (0, 0))
 
 
 def time_passed(count):
     font = pygame.font.SysFont(None, 25)
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 25))
-
-
-# things to avoid in the game
-def things(thingx, thingy, thingw, thingh, color):
-    pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
 
 
 def text_objects(text, font):
@@ -122,24 +141,16 @@ def message_display(text):
     time.sleep(2)
     game_loop()
 
-def crash():
-    message_display('GAME OVER!')
+# def crash():
+#     message_display('GAME OVER!')
 
 
 # main game loop
 def game_loop():
 
-    # object start positoins
-    thing_startx = random.randrange(0, display_width)
-    thing_starty = -600
-    # speed
-    thing_speed = 7
-    # size of object
-    thing_width = 100
-    thing_height = 100
-    # above are parameters used in things function
 
-    dodged = 0
+
+    # dodged = 0
 
     startTime = time.time()
 
@@ -164,21 +175,6 @@ def game_loop():
 
         ## UPDATE GAME STATE ##
 
-        # when object exits screen, a new one spawns
-        if thing_starty > display_height:
-            # start at top of screen
-            thing_starty = 0 - thing_height
-            # starts at random x-coordinate
-            thing_startx = random.randrange(0, display_width)
-            dodged += 1
-
-        # collision detection
-        # if x < thing_startx + thing_width and \
-        #         x + car_width > thing_startx and \
-        #         y < thing_starty + thing_height and \
-        #         y + car_height > thing_starty:
-        #     crash()
-
 
         # draw lines from car to objects
         # vertical distance lines
@@ -200,14 +196,14 @@ def game_loop():
         # background color of game
         gameDisplay.fill(white)
 
-        things_dodged(dodged)
+        # things_dodged(dodged)
 
         time_passed(timePassed)
 
         # display things
-        things(thing_startx, thing_starty, thing_width, thing_height, block_color)
+        # things(thing_startx, thing_starty, thing_width, thing_height, block_color)
         # update position of things/object
-        thing_starty += thing_speed
+        # thing_starty += thing_speed
 
         all_sprites.draw(gameDisplay)
         # update display after events  
