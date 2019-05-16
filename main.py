@@ -147,7 +147,7 @@ def show_go_screen():
                 waiting = False
 
 def game_loop():
-    startTime = time.time()
+
 
     # game stop parameter
     gameExit = False
@@ -160,7 +160,7 @@ def game_loop():
         if gameOver:
             show_go_screen()
             gameOver = False
-            timePassed = 0
+            startTime = time.time()
             all_sprites = pygame.sprite.Group()
             blocks = pygame.sprite.LayeredUpdates()
             player = Player()
@@ -188,7 +188,7 @@ def game_loop():
         all_sprites.update()
 
         # collision detection
-        hits = pygame.sprite.spritecollide(player, blocks, False)
+        hits = pygame.sprite.spritecollide(player, blocks, False, pygame.sprite.collide_mask)
 
         #hits = pygame.sprite.collide_mask(player, object)
         if hits:
