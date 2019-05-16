@@ -147,10 +147,10 @@ def time_passed(count):
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 0))
 
-def distance(dist):
+def distance(dist, y):
     font = pygame.font.SysFont(None, 25)
     text = font.render("Distance: " + str(dist), True, black)
-    gameDisplay.blit(text, (0, 25))
+    gameDisplay.blit(text, (0, y))
 
 def text_objects(text, font):
     textSurface = font.render(text, True, black)
@@ -197,7 +197,7 @@ def game_loop():
             all_sprites = pygame.sprite.Group()
             road_sprites = pygame.sprite.Group()
             road_paint_sprites = pygame.sprite.Group()
-            blocks = pygame.sprite.LayeredUpdates()
+            blocks = pygame.sprite.Group()
             player = Player()
             road = Road()
             roadside = Roadside()
@@ -268,6 +268,13 @@ def game_loop():
 
         # score
         time_passed(timePassed)
+
+        # distance
+        list_blocks = blocks.sprites()
+        y_dist = player.rect.top - list_blocks[1].rect.bottom
+        x_dist = player.rect.center[0] - list_blocks[1].rect.center[0]
+        distance(y_dist, 25)
+        distance(x_dist, 50)
         # update display after events
         pygame.display.flip()
 
