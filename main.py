@@ -147,10 +147,10 @@ def time_passed(count):
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 0))
 
-def distance(dist, y):
+def distance(cord, text_loc_y, object):
     font = pygame.font.SysFont(None, 25)
-    text = font.render("Distance: " + str(dist), True, black)
-    gameDisplay.blit(text, (0, y))
+    text = font.render(str(object) + " :" + str(cord), True, black)
+    gameDisplay.blit(text, (0, text_loc_y))
 
 def text_objects(text, font):
     textSurface = font.render(text, True, black)
@@ -205,8 +205,9 @@ def game_loop():
             road_sprites.add(road)
             all_sprites.add(player)
 
+
             for i in range(1, 6):
-                m = Object(nr=random.randrange(1, 5))
+                m = Object(nr=random.randrange(1, 6))
                 all_sprites.add(m)
                 blocks.add(m)
 
@@ -238,8 +239,6 @@ def game_loop():
         road_paint_sprites.update()
 
         # TODO: If object collide then kill() them
-
-        # TODO: Measure distance between player and objects
 
         # TODO: Change care speed when in ditch
 
@@ -277,8 +276,8 @@ def game_loop():
         y_dist = list_blocks[1].rect.center[1]
         x_dist = list_blocks[1].rect.center[0]
 
-        distance(y_dist, 25)
-        distance(x_dist, 50)
+        distance(y_dist, 25, "Car 1 y")
+        distance(x_dist, 50, "Car 1 x")
         # update display after events
         pygame.display.flip()
 
