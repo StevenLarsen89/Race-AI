@@ -147,9 +147,9 @@ def time_passed(count):
     text = font.render("Time passed: " + str(count), True, black)
     gameDisplay.blit(text, (0, 0))
 
-def distance(cord, text_loc_y, object):
+def distance(cord_x, cord_y, text_loc_y, object):
     font = pygame.font.SysFont(None, 25)
-    text = font.render(str(object) + " :" + str(cord), True, black)
+    text = font.render(str(object) + ": (" + str(cord_x) + ", " + str(cord_y) + ")", True, black)
     gameDisplay.blit(text, (0, text_loc_y))
 
 def text_objects(text, font):
@@ -157,11 +157,11 @@ def text_objects(text, font):
     return textSurface, textSurface.get_rect()
 
 font_name = pygame.font.match_font('arial')
-def draw_text(surf, text, size, x, y):
+def draw_text(surf, text, size, placement_x, placement_y):
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, black)
     text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
+    text_rect.midtop = (placement_x, placement_y)
     surf.blit(text_surface, text_rect)
 
 def show_go_screen():
@@ -185,11 +185,12 @@ def game_loop():
     # game stop parameter
     gameExit = False
     gameOver = True
+    n_objects = 10
 
     # game will run so long as crashed is equal to false
     while not gameExit:
         # define clock / frames per second
-        clock.tick(60)
+        clock.tick(80)
         if gameOver:
             show_go_screen()
             gameOver = False
@@ -206,13 +207,16 @@ def game_loop():
             all_sprites.add(player)
 
 
-            for i in range(1, 6):
+            for i in range(1, n_objects+1):
                 m = Object(nr=random.randrange(1, 6))
+                #overlap = pygame.sprite.spritecollide(m, blocks, False, pygame.sprite.collide_mask)
                 all_sprites.add(m)
                 blocks.add(m)
+                #draw_text(gameDisplay, 'No overlap', 32, display_width / 2, display_height / 2)
 
         timePassed = round((time.time() - startTime), 1)
 
+        # spawns road paint
         if timePassed % 1 == 0:
             for i in range(0, 5):
                 r = Roadpaint(xloc=rdpaint[i])
@@ -248,6 +252,8 @@ def game_loop():
         # collision detection
         hits = pygame.sprite.spritecollide(player, blocks, False, pygame.sprite.collide_mask)
 
+
+
         #hits = pygame.sprite.collide_mask(player, object)
         if hits:
             gameOver = True
@@ -273,11 +279,12 @@ def game_loop():
         # y_dist = player.rect.top - list_blocks[1].rect.bottom
         # x_dist = player.rect.center[0] - list_blocks[1].rect.center[0]
 
-        y_dist = list_blocks[1].rect.center[1]
-        x_dist = list_blocks[1].rect.center[0]
+        for i in range(0, n_objects):
+            y_dist = list_blocks[i].rect.center[1]
+            x_dist = list_blocks[i].rect.center[0]
+            down = 25 * (i+1)
+            distance(x_dist, y_dist, down, "Car " + str(i+1))
 
-        distance(y_dist, 25, "Car 1 y")
-        distance(x_dist, 50, "Car 1 x")
         # update display after events
         pygame.display.flip()
 
